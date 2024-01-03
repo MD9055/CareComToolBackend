@@ -25,7 +25,9 @@ async function verifyToken(req, res, next) {
   try {
     const decoded = jwt.verify(token, jwtSecretKey);
     let userdata = await userModel.findOne({ _id: decoded._id });
-    if(token != userdata.token){
+    // if(token != userdata.token){
+    if(!token){
+
       if(userdata.deviceType == 'ios'){
         let removeTokens = await userModel.findOneAndUpdate({_id:decoded._id}, {$set:{pushNotificationToken:""}}, {new:true})
 
