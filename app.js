@@ -56,7 +56,7 @@ app.use(authRoutes);
 DB();
 
 app.get("/", (req, res) => {
-  res.send("Welcome ! Server is working fine - go ahead....");
+  res.send("Welcome ! Server is working fine - go ahead.... -- Its New Server");
 });
 
 const server = app.listen(PORTS.API_PORT, () => {
