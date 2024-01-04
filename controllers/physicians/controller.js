@@ -40,7 +40,8 @@ module.exports = {
   getPhysicianDetail: getPhysicianDetail,
   saveCredOutlook: saveCredOutlook,
   sendDraftMail: sendDraftMail,
-  getDraftEmail:getDraftEmail
+  getDraftEmail:getDraftEmail,
+  associatedPhysiciansInfo:associatedPhysiciansInfo
 };
 
 function generateKey() {
@@ -961,6 +962,101 @@ async function getPhysicianDetail(req, res) {
       status: responses.ERROR,
       messageID: responses.ERROR_CODE,
       message: responses.DATA_FAILED
+    });
+  }
+}
+
+async function associatedPhysiciansInfo(req, res){
+  try{
+    let physicianId = req.user._id
+    let limit = 1000000,
+      page = 1;
+      let query;
+
+      if (req.query.page) page = req.query.page;
+
+      let options = {
+        page,
+        limit: limit,
+        skip: limit * page,
+        sort: {
+          createdAt: -1, //Sort by Date Added DESC
+        },
+      };
+      let myAggregate = userModel.aggregate();
+    if (physicianId) {
+      console.log(physicianId, "physicianId");
+    
+      const physician = await userModel.findById(physicianId);
+      console.log(physician, "physician");
+    
+      const nursingHomeIds = physician?.nursing_home_id.map(element => element._id) || [];
+      const assistedLivingIds = physician?.assissted_living_id.map(element => element._id) || [];
+    
+      // You can log the nursingHomeIds and assistedLivingIds for debugging
+      console.log("Nursing Home IDs:", nursingHomeIds);
+      console.log("Assisted Living IDs:", assistedLivingIds);
+    
+      // Assuming you want to find physicians associated with both nursing homes and assisted livings
+      query = {
+        role: "physician",
+        status: { $ne: 2 },
+        _id: { $ne: physicianId }, // Exclude the physician with the specified ID
+        $or: [
+          { "nursing_home_id._id": { $in: nursingHomeIds } },
+          { "assissted_living_id._id": { $in: assistedLivingIds } },
+        ],
+      };
+    }
+
+    
+    let filter = "";
+    
+    if (req.query.filter) filter = req.query.filter;
+
+    myAggregate._pipeline = [
+      {
+        $match: query,
+      },
+      //   { $lookup: {
+      //     from: "users",
+      //     localField: "assissted_living_id",
+      //     foreignField: "_id",
+      //     as: "assissted_living_data"
+      //  }},
+      {
+        $match: {
+          $or: [
+            { name: { $regex: filter, $options: "i" } },
+            // { email: { $regex: filter, $options: "i" } },
+          ],
+        },
+      },
+    ];
+
+    let physicianData = await userModel.aggregatePaginate(myAggregate, options);
+    if (physicianData.docs.length > 0) {
+      return res.json({
+        status: "success",
+        messageID: responses.SUCCESS_CODE,
+        message: "Physicians Fetched Successfully.",
+        data: physicianData,
+      });
+    } else {
+      res.status(201).json({
+        status: "failure",
+        messageID: 201,
+        message: responses.NO_RECORDS_FOUND,
+      });
+    }
+    
+
+  }catch(err){
+    console.log(err)
+    return res.jsonp({
+      status: "failure",
+      messageID: constant.INTERNAL_ERROR,
+      message: "Data failed",
     });
   }
 }

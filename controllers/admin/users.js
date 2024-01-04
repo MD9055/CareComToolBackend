@@ -1961,15 +1961,41 @@ async function graphCount(req, res) {
 Funtion is to display daily graph for admin
 */
 
+// async function weeklyData(messageType) {
+//   let DateFormat = "MM/DD/YYYY";
+
+//   let curr = new Date();
+//   let week = [];
+//   let day;
+//   for (let i = 1; i <= 7; i++) {
+//     let first = curr.getDate() - curr.getDay() + i;
+//     day = moment(new Date(curr.setDate(first))).format(DateFormat);
+//     let getMessageWeekly = await messageModel
+//       .find({ messageType: "chat", messageDate: { $lte: day, $gte: day } })
+//       .count();
+
+//     let getFaxWeekly = await messageModel
+//       .find({ messageType: "fax", messageDate: { $lte: day, $gte: day } })
+//       .count();
+//     week.push({
+//       day: day,
+//       chatCount: getMessageWeekly,
+//       faxCount: getFaxWeekly,
+//     });
+//   }
+//   return week;
+// }
+
 async function weeklyData(messageType) {
   let DateFormat = "MM/DD/YYYY";
-
   let curr = new Date();
   let week = [];
   let day;
-  for (let i = 1; i <= 7; i++) {
-    let first = curr.getDate() - curr.getDay() + i;
-    day = moment(new Date(curr.setDate(first))).format(DateFormat);
+  for (let i = 6; i >= 0; i--) { // Start from 6 (current day) and go backward
+    let clonedDate = new Date(curr);
+    clonedDate.setDate(curr.getDate() - i);
+
+    day = moment(clonedDate).format(DateFormat);
     let getMessageWeekly = await messageModel
       .find({ messageType: "chat", messageDate: { $lte: day, $gte: day } })
       .count();
@@ -1977,6 +2003,7 @@ async function weeklyData(messageType) {
     let getFaxWeekly = await messageModel
       .find({ messageType: "fax", messageDate: { $lte: day, $gte: day } })
       .count();
+      
     week.push({
       day: day,
       chatCount: getMessageWeekly,

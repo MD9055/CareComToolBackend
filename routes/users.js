@@ -102,7 +102,8 @@ const {
   authenticateOutlook,
   getPhysicianDetail,
   saveCredOutlook,
-  sendDraftMail
+  sendDraftMail,
+  associatedPhysiciansInfo
 } = require("../controllers/physicians/controller");
 
 const { saveLiveLocation } = require("../middlewares/geoFencing");
@@ -177,6 +178,9 @@ userRoute.get("/authenticate", verifyToken, authenticateUser);
 userRoute.get("/all-nursinghomes", verifyToken, allNursingHomes);
 
 userRoute.get("/all-physicians", verifyToken, allPhysicians);
+
+userRoute.get("/all-associatedPhysicians", verifyToken, associatedPhysiciansInfo);
+
 
 userRoute.get("/list-assistlive", verifyToken, assistedLivings);
 
