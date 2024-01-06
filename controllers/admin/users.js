@@ -1750,7 +1750,8 @@ async function accountUpdate(req, res) {
           contact: req.body.contact,
           fax: req.body.fax,
           outlook_email:req.body.outlook_email,
-          outlook_password:req.body.outlook_password
+          outlook_password:req.body.outlook_password,
+          userStatus:req.body.userStatus
 
         },
       },

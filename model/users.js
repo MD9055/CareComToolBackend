@@ -116,6 +116,9 @@ const userSchema = new mongoose.Schema(
       type:Number,
 
     },
+    userStatus:{
+      type:String
+    },
     
 
     liveLocation:{

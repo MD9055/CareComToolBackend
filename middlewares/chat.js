@@ -496,6 +496,7 @@ async function fetchChatsMobile(senderId, type, page) {
             messageType: "$latestMessage.messageType",
           },
           "users.name": 1,
+          "users.userStatus":1,
           "users.image": 1,
           "users._id": 1,
           "deleteUser.name": 1,
@@ -531,10 +532,7 @@ async function fetchChatsMobile(senderId, type, page) {
         message: responses.CHAT_FETCHED_MSG,
         data: newObj,
       };
-
-      
       return response
-
     }
 
   } catch (error) {
