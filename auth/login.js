@@ -178,6 +178,11 @@ async function login(req, res) {
               }
             });
           }
+          let dataddd = await userModel.findByIdAndUpdate(checkUser._id, {
+            $set:{userStatus:"online"}
+          },{new:true})
+
+          console.log(dataddd, "dataddd")
 
           res.status(200).json({
             status: constant.SUCCESS,

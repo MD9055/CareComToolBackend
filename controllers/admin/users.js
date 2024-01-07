@@ -210,11 +210,12 @@ async function logout(req, res) {
   try {
     let id = req.user._id;
 
-    logoutUser = await userModel.findOneAndUpdate(
+   let logoutUser = await userModel.findOneAndUpdate(
       { _id: id },
-      { $set: { token: null, pushNotificationToken: "" } },
+      { $set: { token: null, pushNotificationToken: "", userStatus:"offline" } },
       { new: true }
     );
+    console.log(logoutUser, "logoutUser")
     if (logoutUser) {
       return res.json({
         status: responses.SUCCESS,
