@@ -89,7 +89,7 @@ async function login(req, res) {
         payload,
         SECRETKEY,
         {
-          expiresIn: "72h",
+          expiresIn: "3650d",
         },
         async (err, token) => {
           let data = {
