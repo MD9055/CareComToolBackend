@@ -400,28 +400,93 @@ async function updateNurse(req, res) {
 API is used to get associated nurse list
 */
 
+// async function associantedNurses(req, res) {
+//   try {
+//     let physician = await userModel.find({ _id: req.user._id });
+//     let nursingHomeIds = [];
+//     physician[0].nursing_home_id.forEach((element) => {
+//       nursingHomeIds.push(element._id);
+//     });
+
+//     let query;
+//     let limit = 10,
+//       page = 1;
+
+//     if (req.query.page) page = req.query.page;
+
+//     let options = {
+//       page,
+//       limit: limit,
+//       skip: limit * page,
+//       sort: {
+//         createdAt: -1, //Sort by Date Added DESC
+//       },
+//     };
+//     let myAggregate = userModel.aggregate();
+//     query = {
+//       role: "nurse",
+//       status: { $ne: 2 },
+//       "nursing_home_id._id": { $in: nursingHomeIds },
+//     };
+
+//     let filter = "";
+
+//     if (req.query.filter) filter = req.query.filter;
+//     myAggregate._pipeline = [
+//       {
+//         $match: query,
+//       },
+
+//       {
+//         $match: {
+//           $or: [
+//             { name: { $regex: filter, $options: "i" } },
+//             // { email: { $regex: filter, $options: "i" } },
+//           ],
+//         },
+//       },
+//     ];
+
+//     let physicianData = await userModel.aggregatePaginate(myAggregate, options);
+//     if (physicianData.docs.length > 0) {
+//       return res.json({
+//         status: "success",
+//         messageID: responses.SUCCESS_CODE,
+//         message: responses.NURSE_FETCHED,
+//         data: physicianData,
+//       });
+//     } else {
+//       res.status(201).json({
+//         status: "failure",
+//         messageID: 201,
+//         message: responses.NO_RECORDS_FOUND,
+//       });
+//     }
+//   } catch (e) {
+//     return res.jsonp({
+//       status: "failure",
+//       messageID: constant.INTERNAL_ERROR,
+//       message: responses.DATA_FAILED,
+//     });
+//   }
+// }
+
 async function associantedNurses(req, res) {
   try {
     let physician = await userModel.find({ _id: req.user._id });
-    let nursingHomeIds = [];
-    physician[0].nursing_home_id.forEach((element) => {
-      nursingHomeIds.push(element._id);
-    });
+    let nursingHomeIds = physician[0].nursing_home_id.map(element => element._id);
 
     let query;
     let limit = 10,
-      page = 1;
-
-    if (req.query.page) page = req.query.page;
+        page = req.query.page ? parseInt(req.query.page) : 1;
 
     let options = {
-      page,
       limit: limit,
-      skip: limit * page,
       sort: {
-        createdAt: -1, //Sort by Date Added DESC
-      },
+        createdAt: -1 // Sort by Date Added DESC
+      }
     };
+
     let myAggregate = userModel.aggregate();
     query = {
       role: "nurse",
@@ -429,44 +494,60 @@ async function associantedNurses(req, res) {
       "nursing_home_id._id": { $in: nursingHomeIds },
     };
 
-    let filter = "";
+    let filter = req.query.filter ? req.query.filter : "";
 
-    if (req.query.filter) filter = req.query.filter;
+    // Modify the $match stage to include search conditions
     myAggregate._pipeline = [
       {
-        $match: query,
-      },
-
-      {
         $match: {
-          $or: [
-            { name: { $regex: filter, $options: "i" } },
-            // { email: { $regex: filter, $options: "i" } },
-          ],
-        },
-      },
+          $and: [
+            query,
+            {
+              $or: [
+                { name: { $regex: filter, $options: "i" } }
+                // Add more fields for search if needed
+              ]
+            }
+          ]
+        }
+      }
     ];
 
+    let totalCount = await userModel.countDocuments(query);
+    let totalPages = Math.ceil(totalCount / limit);
+
+    if (page < 1) {
+      page = 1;
+    } else if (page > totalPages) {
+      page = totalPages;
+    }
+
+    options.skip = (page - 1) * limit;
+
     let physicianData = await userModel.aggregatePaginate(myAggregate, options);
+
     if (physicianData.docs.length > 0) {
       return res.json({
         status: "success",
         messageID: responses.SUCCESS_CODE,
         message: responses.NURSE_FETCHED,
         data: physicianData,
+        page: page,
+        totalPages: totalPages,
+        totalCount: totalCount
       });
     } else {
       res.status(201).json({
         status: "failure",
         messageID: 201,
-        message: responses.NO_RECORDS_FOUND,
+        message: responses.NO_RECORDS_FOUND
       });
     }
   } catch (e) {
     return res.jsonp({
       status: "failure",
       messageID: constant.INTERNAL_ERROR,
-      message: responses.DATA_FAILED,
+      message: responses.DATA_FAILED
     });
   }
 }
