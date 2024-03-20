@@ -690,18 +690,21 @@ async function associantedNurses(req, res) {
       status: "success",
       messageID: responses.SUCCESS_CODE,
       message: responses.NURSE_FETCHED,
-      data: physicianData,
-      totalDocs: totalCount,
-      limit: limit,
-      page: page,
-      totalPages: totalPages,
-      pagingCounter: skip + 1,
-      hasPrevPage: page > 1,
-      hasNextPage: page < totalPages,
-      offset: skip,
-      prevPage: page > 1 ? page - 1 : null,
-      nextPage: page < totalPages ? page + 1 : null,
-      currentPageDocs: currentPageDocs
+      data: {
+        docs:physicianData,
+        totalDocs: totalCount,
+        limit: limit,
+        page: page,
+        totalPages: totalPages,
+        pagingCounter: skip + 1,
+        hasPrevPage: page > 1,
+        hasNextPage: page < totalPages,
+        offset: skip,
+        prevPage: page > 1 ? page - 1 : null,
+        nextPage: page < totalPages ? page + 1 : null,
+        currentPageDocs: currentPageDocs
+      },
+    
     });
   } catch (e) {
     return res.jsonp({
