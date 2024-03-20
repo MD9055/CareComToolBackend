@@ -471,7 +471,7 @@ API is used to get associated nurse list
 //   }
 // }
 
-async function associantedNurses(req, res) {
+async function associantedNursesss(req, res) {
   try {
     let physician = await userModel.find({ _id: req.user._id });
     let nursingHomeIds = physician[0].nursing_home_id.map(element => element._id);
@@ -551,6 +551,173 @@ async function associantedNurses(req, res) {
     });
   }
 }
+
+async function associantedNursesssssss(req, res) {
+  try {
+    let physician = await userModel.find({ _id: req.user._id });
+    let nursingHomeIds = physician[0].nursing_home_id.map(element => element._id);
+
+    let query;
+    let limit = 10,
+      page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
+
+
+    let myAggregate = userModel.aggregate();
+    query = {
+      role: "nurse",
+      status: { $ne: 2 },
+      "nursing_home_id._id": { $in: nursingHomeIds },
+    };
+
+    let filter = req.query.filter ? req.query.filter : "";
+
+    // Modify the $match stage to include search conditions
+    myAggregate.match({
+      $and: [
+        query,
+        {
+          $or: [
+            { name: { $regex: filter, $options: "i" } }
+            // Add more fields for search if needed
+          ]
+        }
+      ]
+    });
+
+    let totalCountPipeline = [...myAggregate.pipeline()]; // Copying the pipeline to calculate total count
+    let totalCountQuery = totalCountPipeline.concat([{ $count: "totalCount" }]);
+    let totalCountResult = await userModel.aggregate(totalCountQuery).exec();
+    let totalCount = totalCountResult.length > 0 ? totalCountResult[0].totalCount : 0;
+
+    
+    let totalPages = Math.ceil(totalCount / limit);
+    console.log(totalPages, "totalPages")
+    if (page < 1 || page > totalPages) {
+      return res.status(201).json({
+        status: "failure",
+        messageID: 201,
+        message: responses.NO_RECORDS_FOUND,
+        pagination: null
+      });
+    }
+
+    let skip = (page - 1) * limit;
+    myAggregate.sort({ createdAt: -1 }).skip(skip).limit(limit);
+
+    let physicianData = await myAggregate.exec();
+
+    const currentPageDocs = physicianData.length;
+
+    return res.json({
+      status: "success",
+      messageID: responses.SUCCESS_CODE,
+      message: responses.NURSE_FETCHED,
+      data: physicianData,
+      totalDocs: totalCount,
+      limit: limit,
+      page: page,
+      totalPages: totalPages,
+      pagingCounter: skip + 1,
+      hasPrevPage: page > 1,
+      hasNextPage: page < totalPages,
+      offset: skip,
+      prevPage: page > 1 ? page - 1 : null,
+      nextPage: page < totalPages ? page + 1 : null,
+      currentPageDocs: currentPageDocs
+    });
+  } catch (e) {
+    return res.jsonp({
+      status: "failure",
+      messageID: constant.INTERNAL_ERROR,
+      message: responses.DATA_FAILED
+    });
+  }
+}
+
+async function associantedNurses(req, res) {
+  try {
+    let physician = await userModel.find({ _id: req.user._id });
+    let nursingHomeIds = physician[0].nursing_home_id.map(element => element._id);
+
+    let limit = 10,
+      page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
+
+    let myAggregate = userModel.aggregate();
+    let query = {
+      role: "nurse",
+      status: { $ne: 2 },
+      "nursing_home_id._id": { $in: nursingHomeIds },
+    };
+
+    let filter = req.query.filter ? req.query.filter : "";
+
+    // Apply search filter
+    if (filter) {
+      query.name = { $regex: filter, $options: "i" };
+    }
+
+    // Add match stage to the aggregation pipeline
+    myAggregate.match(query);
+
+    // Calculate total count before pagination
+    let totalCountPipeline = [...myAggregate.pipeline()];
+    let totalCountQuery = totalCountPipeline.concat([{ $count: "totalCount" }]);
+    let totalCountResult = await userModel.aggregate(totalCountQuery).exec();
+    let totalCount = totalCountResult.length > 0 ? totalCountResult[0].totalCount : 0;
+
+    let totalPages = Math.ceil(totalCount / limit);
+
+    if (page < 1 || page > totalPages) {
+      return res.status(201).json({
+        status: "failure",
+        messageID: 201,
+        message: responses.NO_RECORDS_FOUND,
+        pagination: null
+      });
+    }
+
+    let skip = (page - 1) * limit;
+
+    // Add sorting, skipping, and limiting to the aggregation pipeline
+    myAggregate.sort({ createdAt: -1 }).skip(skip).limit(limit);
+
+    // Execute the aggregation pipeline
+    let physicianData = await myAggregate.exec();
+
+    const currentPageDocs = physicianData.length;
+
+    return res.json({
+      status: "success",
+      messageID: responses.SUCCESS_CODE,
+      message: responses.NURSE_FETCHED,
+      data: physicianData,
+      totalDocs: totalCount,
+      limit: limit,
+      page: page,
+      totalPages: totalPages,
+      pagingCounter: skip + 1,
+      hasPrevPage: page > 1,
+      hasNextPage: page < totalPages,
+      offset: skip,
+      prevPage: page > 1 ? page - 1 : null,
+      nextPage: page < totalPages ? page + 1 : null,
+      currentPageDocs: currentPageDocs
+    });
+  } catch (e) {
+    return res.jsonp({
+      status: "failure",
+      messageID: constant.INTERNAL_ERROR,
+      message: responses.DATA_FAILED
+    });
+  }
+}
+
+
+
+
+
+
+
 
 /* 
 API is used to get the associated physician list
