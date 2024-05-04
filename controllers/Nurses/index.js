@@ -1102,6 +1102,7 @@ API is used to get associated nurses for the nursing home
 
 */
 
+/*
 async function allNursesAssociatedNursinghome(req, res) {
   try {
     let query;
@@ -1162,6 +1163,69 @@ async function allNursesAssociatedNursinghome(req, res) {
       status: "failure",
       messageID: constant.INTERNAL_ERROR,
       message: responses.DATA_FAILED,
+    });
+  }
+}
+*/
+
+async function allNursesAssociatedNursinghome(req, res) {
+  try {
+    let query;
+    let limit = 10,
+      page = 1;
+
+    if (req.query.page) page = parseInt(req.query.page);
+
+    let filter = "";
+    if (req.query.filter) filter = req.query.filter;
+
+    query = {
+      "nursing_home_id._id": req.query.nursing_home_id,
+      role: "nurse",
+      status:{$ne:2}
+    };
+
+    const totalCount = await userModel.countDocuments(query);
+    const totalPages = Math.ceil(totalCount / limit);
+    const skip = (page - 1) * limit;
+
+    const nurses = await userModel
+      .find(query)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .exec();
+
+    if (nurses.length > 0) {
+      return res.json({
+        status: "success",
+        messageID: 200,
+        message: "Nurse Fetched Successfully",
+        data: {
+          docs: nurses,
+          totalDocs: totalCount,
+          limit: limit,
+          page: page,
+          totalPages: totalPages,
+          pagingCounter: (page - 1) * limit + 1,
+          hasPrevPage: page > 1,
+          hasNextPage: page < totalPages,
+          prevPage: page > 1 ? page - 1 : null,
+          nextPage: page < totalPages ? page + 1 : null,
+        },
+      });
+    } else {
+      res.status(201).json({
+        status: "failure",
+        messageID: 201,
+        message: "No nurses found for the given criteria",
+      });
+    }
+  } catch (e) {
+    return res.json({
+      status: "failure",
+      messageID: constant.INTERNAL_ERROR,
+      message: "Internal Server Error",
     });
   }
 }
