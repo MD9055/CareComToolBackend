@@ -1102,69 +1102,132 @@ API is used to get associated nurses for the nursing home
 
 */
 
+// async function allNursesAssociatedNursinghome(req, res) {
+//   try {
+//     let query;
+//     let limit = 10,
+//       page = 1;
+
+//     if (req.query.page) page = req.query.page;
+
+//     let options = {
+//       page,
+//       limit: limit,
+//       skip: limit * page,
+//       sort: {
+//         createdAt: -1, //Sort by Date Added DESC
+//       },
+//     };
+//     let myAggregate = userModel.aggregate();
+//     query = {
+//       "nursing_home_id._id": req.query.nursing_home_id,
+//       role: "nurse",
+//     };
+
+//     let filter = "";
+
+//     if (req.query.filter) filter = req.query.filter;
+//     myAggregate._pipeline = [
+//       {
+//         $match: query,
+//       },
+
+//       {
+//         $match: {
+//           $or: [
+//             { name: { $regex: filter, $options: "i" } },
+//             // { email: { $regex: filter, $options: "i" } },
+//           ],
+//         },
+//       },
+//     ];
+
+//     let nurseData = await userModel.aggregatePaginate(myAggregate, options);
+//     if (nurseData.docs.length > 0) {
+//       return res.json({
+//         status: "success",
+//         messageID: responses.SUCCESS_CODE,
+//         message: responses.NURSE_FETCHED,
+//         data: nurseData,
+//       });
+//     } else {
+//       res.status(201).json({
+//         status: "failure",
+//         messageID: 201,
+//         message: responses.NO_RECORDS_FOUND,
+//       });
+//     }
+//   } catch (e) {
+//     return res.jsonp({
+//       status: "failure",
+//       messageID: constant.INTERNAL_ERROR,
+//       message: responses.DATA_FAILED,
+//     });
+//   }
+// }
+
 async function allNursesAssociatedNursinghome(req, res) {
   try {
     let query;
     let limit = 10,
       page = 1;
 
-    if (req.query.page) page = req.query.page;
+    if (req.query.page) page = parseInt(req.query.page);
 
-    let options = {
-      page,
-      limit: limit,
-      skip: limit * page,
-      sort: {
-        createdAt: -1, //Sort by Date Added DESC
-      },
-    };
-    let myAggregate = userModel.aggregate();
+    let filter = "";
+    if (req.query.filter) filter = req.query.filter;
+
     query = {
       "nursing_home_id._id": req.query.nursing_home_id,
       role: "nurse",
+      status:{$ne:2}
     };
 
-    let filter = "";
+    const totalCount = await userModel.countDocuments(query);
+    const totalPages = Math.ceil(totalCount / limit);
+    const skip = (page - 1) * limit;
 
-    if (req.query.filter) filter = req.query.filter;
-    myAggregate._pipeline = [
-      {
-        $match: query,
-      },
+    const nurses = await userModel
+      .find(query)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .exec();
 
-      {
-        $match: {
-          $or: [
-            { name: { $regex: filter, $options: "i" } },
-            // { email: { $regex: filter, $options: "i" } },
-          ],
-        },
-      },
-    ];
-
-    let nurseData = await userModel.aggregatePaginate(myAggregate, options);
-    if (nurseData.docs.length > 0) {
+    if (nurses.length > 0) {
       return res.json({
         status: "success",
-        messageID: responses.SUCCESS_CODE,
-        message: responses.NURSE_FETCHED,
-        data: nurseData,
+        messageID: 200,
+        message: "Nurse Fetched Successfully",
+        data: {
+          docs: nurses,
+          totalDocs: totalCount,
+          limit: limit,
+          page: page,
+          totalPages: totalPages,
+          pagingCounter: (page - 1) * limit + 1,
+          hasPrevPage: page > 1,
+          hasNextPage: page < totalPages,
+          prevPage: page > 1 ? page - 1 : null,
+          nextPage: page < totalPages ? page + 1 : null,
+        },
       });
     } else {
       res.status(201).json({
         status: "failure",
         messageID: 201,
-        message: responses.NO_RECORDS_FOUND,
+        message: "No nurses found for the given criteria",
       });
     }
   } catch (e) {
-    return res.jsonp({
+    return res.json({
       status: "failure",
       messageID: constant.INTERNAL_ERROR,
-      message: responses.DATA_FAILED,
+      message: "Internal Server Error",
     });
   }
 }
+
 
 async function associantedAllDataSelected(req, res) {
   try {
