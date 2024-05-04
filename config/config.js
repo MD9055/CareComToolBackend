@@ -2,27 +2,27 @@
 
 const config = {
   local: {
-    DB: {
-      HOST: "127.0.0.1",
-      PORT: "27017",
-      DATABASE: "carecomtool",
-      MONGOOSE: {
-        useUnifiedTopology: true,
-        useNewUrlParser: true,
-      },
-    },
-
     // DB: {
-    //   HOST: "34.223.146.53",
+    //   HOST: "127.0.0.1",
     //   PORT: "27017",
-    //   DATABASE: "Docnock",
+    //   DATABASE: "carecomtool",
     //   MONGOOSE: {
     //     useUnifiedTopology: true,
     //     useNewUrlParser: true,
     //   },
-    //   UserName: "Docnock",
-    //   Password: "DFGocn45tgock",
     // },
+
+    DB: {
+      HOST: "34.223.146.53",
+      PORT: "27017",
+      DATABASE: "Docnock",
+      MONGOOSE: {
+        useUnifiedTopology: true,
+        useNewUrlParser: true,
+      },
+      UserName: "Docnock",
+      Password: "DFGocn45tgock",
+    },
 
     EMAIL: {
       host: "smtp.gmail.com",
