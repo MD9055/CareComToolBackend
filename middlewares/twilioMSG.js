@@ -1,6 +1,6 @@
 
 
-const telnyx = require('telnyx')('KEY018F4F20E6CE0375453894662BA10E28_KcZO27jGcJMXq2CRbeQ48i');
+const telnyx = require('telnyx')(process.env.APIKEY);
 
 const config = require("../config/config").get(
   process.env.NODE_ENV || "local"
