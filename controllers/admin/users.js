@@ -857,29 +857,60 @@ function is used to delete the user by using the ID
 
 */
 
+
+// this is for the soft deletion when this will required then you can open
+
+// async function deleteUserById(req, res) {
+//   try {
+//     userModel.findOneAndUpdate(
+//       { _id: req.body._id },
+//       { $set: { status: 2 } },
+//       { new: true },
+//       (err, data) => {
+//         if (!err) {
+//           return res.json({
+//             status: responses.SUCCESS,
+//             messageID: responses.SUCCESS_CODE,
+//             message: responses.DELETE_SUCCESS,
+//             // data: data,
+//           });
+//         } else {
+//           res.status(201).json({
+//             status: responses.FAILURE,
+//             messageID: responses.INTERNAL_ERROR_CODE,
+//             message: responses.NO_RECORDS_FOUND,
+//           });
+//         }
+//       }
+//     );
+//   } catch (error) {
+//     res.status(201).json({
+//       status: responses.FAILURE,
+//       messageID: responses.INTERNAL_ERROR_CODE,
+//       message: responses.NO_RECORDS_FOUND,
+//       error: error,
+//     });
+//   }
+// }
+
+
 async function deleteUserById(req, res) {
   try {
-    userModel.findOneAndUpdate(
-      { _id: req.body._id },
-      { $set: { status: 2 } },
-      { new: true },
-      (err, data) => {
-        if (!err) {
-          return res.json({
-            status: responses.SUCCESS,
-            messageID: responses.SUCCESS_CODE,
-            message: responses.DELETE_SUCCESS,
-            // data: data,
-          });
-        } else {
-          res.status(201).json({
-            status: responses.FAILURE,
-            messageID: responses.INTERNAL_ERROR_CODE,
-            message: responses.NO_RECORDS_FOUND,
-          });
-        }
+    userModel.deleteOne({ _id: req.body._id }, (err) => {
+      if (!err) {
+        return res.json({
+          status: responses.SUCCESS,
+          messageID: responses.SUCCESS_CODE,
+          message: responses.DELETE_SUCCESS,
+        });
+      } else {
+        res.status(201).json({
+          status: responses.FAILURE,
+          messageID: responses.INTERNAL_ERROR_CODE,
+          message: responses.NO_RECORDS_FOUND,
+        });
       }
-    );
+    });
   } catch (error) {
     res.status(201).json({
       status: responses.FAILURE,
@@ -889,6 +920,7 @@ async function deleteUserById(req, res) {
     });
   }
 }
+
 
 /* 
 
