@@ -1296,6 +1296,7 @@ async function participantInfo(req, res) {
       });
     }
   } catch (e) {
+    console.log(e)
     return res.json({
       status: responses.ERROR,
       messageID: responses.ERROR_CODE,
