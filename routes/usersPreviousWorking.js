@@ -57,7 +57,7 @@ const {
   removePhysician,
   nursingLatLong,
   removeAllTokens,
-  resendProfilelink,
+  resendProfilelink
 } = require("../controllers/admin/users");
 
 const {
@@ -81,7 +81,7 @@ const {
   updateNursePasswrord,
   getNurseByShift,
   updateLocationStatus,
-  getByIdNursingHome,
+  getByIdNursingHome
 } = require("../controllers/nursing_home/controller");
 
 const {
@@ -103,7 +103,7 @@ const {
   getPhysicianDetail,
   saveCredOutlook,
   sendDraftMail,
-  associatedPhysiciansInfo,
+  associatedPhysiciansInfo
 } = require("../controllers/physicians/controller");
 
 const { saveLiveLocation } = require("../middlewares/geoFencing");
@@ -144,15 +144,7 @@ const {
   fetchRoomForCall,
   fetchRoomForCallAgora,
   globalSearch,
-  participantInfo,
-  getNotification,
-  updateNotificationById,
-  getAllNotification,
-  markAllRead,
-  unreadCount,
-  chatFilter,
-  allchatExport,
-  fetchChatsMobile,
+  participantInfo, getNotification, updateNotificationById, getAllNotification, markAllRead, unreadCount,chatFilter,allchatExport
 } = require("../middlewares/chat");
 
 const { verifyToken } = require("../middlewares/verifyToken");
@@ -172,11 +164,8 @@ userRoute.post("/current-user", verifyToken, currentUser);
 userRoute.post("/register", verifyToken, upload.single("image"), register);
 
 userRoute.post("/profileUpdate", upload.single("image"), profileUpdate);
-userRoute.post(
-  "/setupProfileUpdate",
-  upload.single("image"),
-  setupProfileUpdate
-);
+userRoute.post("/setupProfileUpdate", upload.single("image"), setupProfileUpdate);
+
 
 userRoute.get("/getAllUsers", verifyToken, getAllUsers);
 
@@ -190,11 +179,8 @@ userRoute.get("/all-nursinghomes", verifyToken, allNursingHomes);
 
 userRoute.get("/all-physicians", verifyToken, allPhysicians);
 
-userRoute.get(
-  "/all-associatedPhysicians",
-  verifyToken,
-  associatedPhysiciansInfo
-);
+userRoute.get("/all-associatedPhysicians", verifyToken, associatedPhysiciansInfo);
+
 
 userRoute.get("/list-assistlive", verifyToken, assistedLivings);
 
@@ -216,7 +202,12 @@ userRoute.post(
   verifyToken,
   physicianAndNursesForNursingHome
 );
-userRoute.get("/getById", verifyToken, getByIdNursingHome);
+userRoute.get(
+  "/getById",
+  verifyToken,
+  getByIdNursingHome
+);
+
 
 userRoute.post(
   "/assistedliving-physicians-nurses",
@@ -303,19 +294,6 @@ userRoute.get("/get-messages-mobile", verifyToken, allMessagesMobile);
 
 userRoute.get("/getChatlist", verifyToken, fetchChatsMobileTest);
 
-userRoute.get("/fetch-user-chats", verifyToken, async (req, res) => {
-  try {
-    const response = await fetchChatsMobile(req.user._id, "chat");
-    res.status(200).json(response);
-  } catch (error) {
-    res.json({
-      status: responses.ERROR,
-      messageID: responses.ERROR_CODE,
-      message: responses.DATA_FAILED,
-    });
-  }
-});
-
 userRoute.get("/get-messages", verifyToken, allMessages);
 userRoute.get("/get-messages-web", verifyToken, allMessagesWeb);
 
@@ -363,11 +341,11 @@ userRoute.post("/staff-availibility", verifyToken, staffAvailibility);
 
 userRoute.get("/nurse-by-shift", verifyToken, getNurseByShift);
 
-userRoute.get("/get-unreadcount", verifyToken, unreadCount);
+userRoute.get('/get-unreadcount', verifyToken, unreadCount)
 
-userRoute.get("/getChat", chatFilter);
+userRoute.get('/getChat', chatFilter)
 
-userRoute.get("/allchatExport", allchatExport);
+userRoute.get('/allchatExport',allchatExport)
 // userRoute.post("/connect-user-room", verifyToken, joinRoom)
 
 associantedAllData;
@@ -691,9 +669,11 @@ userRoute.post("/fax-identifiers-description", Fax_GetFaxDescriptions);
 
 // geo Location Save Api
 
-// geo Location Save Api
+// geo Location Save Api 
 
-userRoute.post("/save-location", verifyToken, saveLiveLocation);
+userRoute.post('/save-location', verifyToken, saveLiveLocation)
+
+
 
 let upload6 = multer({
   storage: multer.diskStorage({
@@ -703,6 +683,7 @@ let upload6 = multer({
 
     filename: (req, file, callback) => {
       req.originalName = Date.now() + "-" + file.originalname;
+
 
       callback(null, req.originalName);
     },
@@ -717,26 +698,27 @@ let upload6 = multer({
   },
 });
 
+
 //Mail
-userRoute.post("/send-email", upload6.single("file"), sendMail);
-userRoute.get("/get-email", getEmail);
-userRoute.get("/getDraftEmail", getDraftEmail);
-userRoute.post("/get-mail", verifyToken, getInbox);
+userRoute.post("/send-email", upload6.single("file"),sendMail);
+userRoute.get("/get-email",getEmail);
+userRoute.get("/getDraftEmail",getDraftEmail);
+userRoute.post("/get-mail",verifyToken, getInbox);
 
-userRoute.post("/store-signature-data", addSignature);
-userRoute.get("/get-signature-id/:Id", getSignatureById);
-userRoute.delete("/delete-signature/:id", deleteSignature);
-userRoute.get("/getEmailInfo/:id", getEmailInfo);
+userRoute.post("/store-signature-data",addSignature);
+userRoute.get("/get-signature-id/:Id",getSignatureById);
+userRoute.delete("/delete-signature/:id",deleteSignature);
+userRoute.get("/getEmailInfo/:id",getEmailInfo);
 
-userRoute.post("/reply-email", upload6.single("file"), replyInboxmail);
-userRoute.post("/forward-email", upload6.single("file"), forwardMail);
+userRoute.post("/reply-email",upload6.single("file"),replyInboxmail);
+userRoute.post("/forward-email",upload6.single("file"),forwardMail);
 
-userRoute.post("/check-outlook", verifyToken, authenticateOutlook);
-userRoute.get("/get-users-data", verifyToken, getPhysicianDetail);
-userRoute.post("/save-creds", verifyToken, saveCredOutlook);
+userRoute.post("/check-outlook",verifyToken,authenticateOutlook);
+userRoute.get("/get-users-data",verifyToken ,getPhysicianDetail);
+userRoute.post("/save-creds",verifyToken ,saveCredOutlook);
 
-userRoute.post("/sendDraftMail", upload6.single("file"), sendDraftMail);
+userRoute.post("/sendDraftMail", upload6.single("file"),sendDraftMail);
 
-userRoute.post("/resendProfilelink", verifyToken, resendProfilelink);
+userRoute.post('/resendProfilelink', verifyToken, resendProfilelink)
 
 module.exports = userRoute;
