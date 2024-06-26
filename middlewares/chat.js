@@ -1547,14 +1547,14 @@ async function deleteMessage(id) {
     let dataToUpdate = {
       isDeleted: true,
     };
-    deleteMessage = await commonQuery.updateOne(
+   let updatedResult = await commonQuery.updateOne(
       Message,
       condition,
       dataToUpdate
     );
-    if (deleteMessage) {
+    if (updatedResult) {
       let message;
-      if (deleteMessage.acknowledged == true) {
+      if (updatedResult) {
         message = "Message Deleted Successfully";
       }
       let resObj = {
@@ -1566,12 +1566,48 @@ async function deleteMessage(id) {
           MessageId: id,
         },
       };
+      console.log(resObj,"nModified" )
       return resObj;
     }
   } catch (err) {
     throw err;
   }
 }
+
+// async function deleteMessage(id) {
+//   try {
+//     let condition = {
+//       _id: id,
+//     };
+//     let dataToUpdate = {
+//       isDeleted: true,
+//     };
+//     deleteMessage = await commonQuery.updateOne(
+//       Message,
+//       condition,
+//       dataToUpdate
+//     );
+//     if (deleteMessage) {
+//       let message;
+//       if (deleteMessage.acknowledged == true) {
+//         message = "Message Deleted Successfully";
+//       }
+//       let resObj = {
+//         status: responses.SUCCESS,
+//         messageID: responses.SUCCESS_CODE,
+//         message: responses.FETCH_SUCCESS,
+//         UpdateStatus: {
+//           message: message,
+//           MessageId: id,
+//         },
+//       };
+//       return resObj;
+//     }
+//   } catch (err) {
+//     throw err;
+//   }
+// }
+
 
 /* function to remove the chat if nurse password got reset */
 
