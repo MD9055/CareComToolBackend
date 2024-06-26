@@ -920,7 +920,7 @@ exports = module.exports = function (io) {
         */
     socket.on("delete-message", async (data) => {
       let deleteMessageById = await deleteMessage(data._id);
-
+        socket.join(data.chatId)
       await io.in(data.chatId).emit("message-deleted", deleteMessageById);
     });
 
