@@ -280,6 +280,7 @@ API is used to update the nurse information
 //   }
 // }
 
+
 async function updateNurse(req, res) {
   try {
     const payload = {};
@@ -370,11 +371,7 @@ async function updateNurse(req, res) {
     }
 
     payload.image = imageData;
-    const result = await userModel.findByIdAndUpdate(
-      id,
-      { $set: payload },
-      { new: true }
-    );
+    const result = await userModel.findByIdAndUpdate(id, { $set: payload }, { new: true });
 
     if (result) {
       return res.json({
@@ -395,6 +392,9 @@ async function updateNurse(req, res) {
     console.log(error);
   }
 }
+
+
+
 
 /* 
 API is used to get associated nurse list
@@ -474,19 +474,17 @@ API is used to get associated nurse list
 async function associantedNursesss(req, res) {
   try {
     let physician = await userModel.find({ _id: req.user._id });
-    let nursingHomeIds = physician[0].nursing_home_id.map(
-      (element) => element._id
-    );
+    let nursingHomeIds = physician[0].nursing_home_id.map(element => element._id);
 
     let query;
     let limit = 10,
-      page = req.query.page ? parseInt(req.query.page) : 1;
+        page = req.query.page ? parseInt(req.query.page) : 1;
 
     let options = {
       limit: limit,
       sort: {
-        createdAt: -1, // Sort by Date Added DESC
-      },
+        createdAt: -1 // Sort by Date Added DESC
+      }
     };
 
     let myAggregate = userModel.aggregate();
@@ -506,13 +504,13 @@ async function associantedNursesss(req, res) {
             query,
             {
               $or: [
-                { name: { $regex: filter, $options: "i" } },
+                { name: { $regex: filter, $options: "i" } }
                 // Add more fields for search if needed
-              ],
-            },
-          ],
-        },
-      },
+              ]
+            }
+          ]
+        }
+      }
     ];
 
     let totalCount = await userModel.countDocuments(query);
@@ -536,20 +534,20 @@ async function associantedNursesss(req, res) {
         data: physicianData,
         page: page,
         totalPages: totalPages,
-        totalCount: totalCount,
+        totalCount: totalCount
       });
     } else {
       res.status(201).json({
         status: "failure",
         messageID: 201,
-        message: responses.NO_RECORDS_FOUND,
+        message: responses.NO_RECORDS_FOUND
       });
     }
   } catch (e) {
     return res.jsonp({
       status: "failure",
       messageID: constant.INTERNAL_ERROR,
-      message: responses.DATA_FAILED,
+      message: responses.DATA_FAILED
     });
   }
 }
@@ -557,13 +555,12 @@ async function associantedNursesss(req, res) {
 async function associantedNursesssssss(req, res) {
   try {
     let physician = await userModel.find({ _id: req.user._id });
-    let nursingHomeIds = physician[0].nursing_home_id.map(
-      (element) => element._id
-    );
+    let nursingHomeIds = physician[0].nursing_home_id.map(element => element._id);
 
     let query;
     let limit = 10,
       page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
+
 
     let myAggregate = userModel.aggregate();
     query = {
@@ -580,27 +577,27 @@ async function associantedNursesssssss(req, res) {
         query,
         {
           $or: [
-            { name: { $regex: filter, $options: "i" } },
+            { name: { $regex: filter, $options: "i" } }
             // Add more fields for search if needed
-          ],
-        },
-      ],
+          ]
+        }
+      ]
     });
 
     let totalCountPipeline = [...myAggregate.pipeline()]; // Copying the pipeline to calculate total count
     let totalCountQuery = totalCountPipeline.concat([{ $count: "totalCount" }]);
     let totalCountResult = await userModel.aggregate(totalCountQuery).exec();
-    let totalCount =
-      totalCountResult.length > 0 ? totalCountResult[0].totalCount : 0;
+    let totalCount = totalCountResult.length > 0 ? totalCountResult[0].totalCount : 0;
 
+    
     let totalPages = Math.ceil(totalCount / limit);
-    console.log(totalPages, "totalPages");
+    console.log(totalPages, "totalPages")
     if (page < 1 || page > totalPages) {
       return res.status(201).json({
         status: "failure",
         messageID: 201,
         message: responses.NO_RECORDS_FOUND,
-        pagination: null,
+        pagination: null
       });
     }
 
@@ -626,13 +623,13 @@ async function associantedNursesssssss(req, res) {
       offset: skip,
       prevPage: page > 1 ? page - 1 : null,
       nextPage: page < totalPages ? page + 1 : null,
-      currentPageDocs: currentPageDocs,
+      currentPageDocs: currentPageDocs
     });
   } catch (e) {
     return res.jsonp({
       status: "failure",
       messageID: constant.INTERNAL_ERROR,
-      message: responses.DATA_FAILED,
+      message: responses.DATA_FAILED
     });
   }
 }
@@ -640,9 +637,7 @@ async function associantedNursesssssss(req, res) {
 async function associantedNurses(req, res) {
   try {
     let physician = await userModel.find({ _id: req.user._id });
-    let nursingHomeIds = physician[0].nursing_home_id.map(
-      (element) => element._id
-    );
+    let nursingHomeIds = physician[0].nursing_home_id.map(element => element._id);
 
     let limit = 10,
       page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
@@ -668,8 +663,7 @@ async function associantedNurses(req, res) {
     let totalCountPipeline = [...myAggregate.pipeline()];
     let totalCountQuery = totalCountPipeline.concat([{ $count: "totalCount" }]);
     let totalCountResult = await userModel.aggregate(totalCountQuery).exec();
-    let totalCount =
-      totalCountResult.length > 0 ? totalCountResult[0].totalCount : 0;
+    let totalCount = totalCountResult.length > 0 ? totalCountResult[0].totalCount : 0;
 
     let totalPages = Math.ceil(totalCount / limit);
 
@@ -678,7 +672,7 @@ async function associantedNurses(req, res) {
         status: "failure",
         messageID: 201,
         message: responses.NO_RECORDS_FOUND,
-        pagination: null,
+        pagination: null
       });
     }
 
@@ -697,7 +691,7 @@ async function associantedNurses(req, res) {
       messageID: responses.SUCCESS_CODE,
       message: responses.NURSE_FETCHED,
       data: {
-        docs: physicianData,
+        docs:physicianData,
         totalDocs: totalCount,
         limit: limit,
         page: page,
@@ -708,17 +702,25 @@ async function associantedNurses(req, res) {
         offset: skip,
         prevPage: page > 1 ? page - 1 : null,
         nextPage: page < totalPages ? page + 1 : null,
-        currentPageDocs: currentPageDocs,
+        currentPageDocs: currentPageDocs
       },
+    
     });
   } catch (e) {
     return res.jsonp({
       status: "failure",
       messageID: constant.INTERNAL_ERROR,
-      message: responses.DATA_FAILED,
+      message: responses.DATA_FAILED
     });
   }
 }
+
+
+
+
+
+
+
 
 /* 
 API is used to get the associated physician list
@@ -1173,19 +1175,13 @@ async function allNursesAssociatedNursinghome(req, res) {
     if (req.query.page) page = parseInt(req.query.page);
 
     let filter = "";
-    if (req.query.filter) {
-      filter = req.query.filter;
-    }
+    if (req.query.filter) filter = req.query.filter;
 
     query = {
       "nursing_home_id._id": req.query.nursing_home_id,
       role: "nurse",
-      status: { $ne: 2 },
+      status:{$ne:2}
     };
-
-    if (filter) {
-      query.name = { $regex: filter, $options: "i" };
-    }
 
     const totalCount = await userModel.countDocuments(query);
     const totalPages = Math.ceil(totalCount / limit);
@@ -1231,6 +1227,7 @@ async function allNursesAssociatedNursinghome(req, res) {
     });
   }
 }
+
 
 async function associantedAllDataSelected(req, res) {
   try {
